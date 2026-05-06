@@ -1,4 +1,5 @@
 using System.Web;
+using Spectre.Console;
 
 namespace MonkeModManager;
 
@@ -20,6 +21,23 @@ public class Protocol
 
             Console.ReadKey();
             Environment.Exit(0);
+        }
+
+        string gamePath = Pathing.GetGamePath();
+
+        if (uri.Host == "install")
+        {
+            if (query.Count == 2)
+            {
+                AnsiConsole.Progress()
+                    .StartAsync(progress =>
+                    Installer.Invoke(query["name"], query["url"], progress, gamePath));
+                
+                Console.WriteLine($"\n{query["name"]} was installed.");
+                Console.ReadKey();
+
+                Environment.Exit(0);
+            }
         }
 
         Console.WriteLine($"Invalid URI {uri.Host}.");

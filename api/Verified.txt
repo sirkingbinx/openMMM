@@ -1,1 +1,4 @@
 https://github.com/sirkingbinx
+https://github.com/BepInEx
+https://github.com/LavaGang
+https://github.com/GorillaTagModdingHub

@@ -1,17 +1,33 @@
 using System.IO.Compression;
-using System.Reflection.Metadata.Ecma335;
 using Spectre.Console;
 
 namespace MonkeModManager;
 
 public class Installer
 {
-    public const string VerifiedApi = "https://api.sirkingbinx.dev/";
+    public const string VerifiedApiUrl = "https://raw.githubusercontent.com/sirkingbinx/openMMM/refs/heads/master/api/Verified.txt";
+
+    public static string[] VerifiedCache = [];
 
     public static async Task Invoke(string displayName, string url, ProgressContext progress = null, string path = "")
     {
         if (path == "")
-            path = Registry.GetGamePath();
+            path = Pathing.GetGamePath();
+        
+        if (VerifiedCache.Length == 0)
+        {
+            try { VerifiedCache = new HttpClient().GetStringAsync(VerifiedApiUrl).GetAwaiter().GetResult().Split("\n"); }
+            catch { }
+        }
+
+        string host = new Uri(url).Host;
+        bool verified = VerifiedCache.Any(verifiedUrl => url.StartsWith(verifiedUrl));
+
+        string verifiedText = verified ? "[green]Verified[/]" : "";
+
+        bool install = AnsiConsole.Prompt(new SelectionPrompt<string>()
+            .Title($"{displayName} {verifiedText}\n\nDo you want to install this?")
+            .AddChoices("Yes", "No")) == "Yes";
 
         const int steps = 2;
         var task = progress?.AddTask($"Installing {displayName}");
@@ -23,6 +39,8 @@ public class Installer
         updateStep(1);
 
         using var httpClient = new HttpClient();
+        httpClient.DefaultRequestHeaders.Add("User-Agent", $"MonkeModManager/{Program.Version}");
+
         var fileData = await httpClient.GetStreamAsync(url);
 
         if (Path.GetExtension(url) == ".zip")
@@ -32,8 +50,14 @@ public class Installer
         }
         else if (Path.GetExtension(url) == ".dll")
         {
-            
+            using var fileStream = new FileStream(Path.Combine(Pathing.GetModLoaderPluginsPath(path), Path.GetFileName(url)), FileMode.Create);
+            fileData.CopyTo(fileStream);
+            fileStream.Flush();
+
+            fileStream.Close();
         }
+
+        updateStep(2);
     }
 
     public static void InstallBepInEx(string path) =>
