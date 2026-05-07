@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using AwesomeTxt;
 using Spectre.Console;
 
 namespace MonkeModManager;
@@ -7,21 +8,21 @@ public class Installer
 {
     public const string VerifiedApiUrl = "https://raw.githubusercontent.com/sirkingbinx/openMMM/refs/heads/master/api/Verified.txt";
 
-    public static string[] VerifiedCache = [];
+    private static AwesomeTxtFile VerifiedCache;
 
     public static async Task Invoke(string displayName, string url, ProgressContext progress = null, string path = "")
     {
         if (path == "")
             path = Pathing.GetGamePath();
         
-        if (VerifiedCache.Length == 0)
+        if (VerifiedCache == null)
         {
-            try { VerifiedCache = (await Network.GetString(VerifiedApiUrl)).Split("\n"); }
+            try { VerifiedCache = new AwesomeTxtFile(await Network.GetString(VerifiedApiUrl)); }
             catch { }
         }
 
         string host = new Uri(url).Host;
-        bool verified = VerifiedCache.Any(verifiedUrl => url.StartsWith(verifiedUrl));
+        bool verified = VerifiedCache.Results.Any(verifiedUrl => url.StartsWith(verifiedUrl));
 
         string verifiedText = verified ? "([green]Verified[/])" : "";
 
@@ -56,13 +57,21 @@ public class Installer
         updateStep(2);
     }
 
-    public static void InstallBepInEx(string path) =>
+    public static void InstallBepInEx(string path)
+    {
         AnsiConsole.Progress()
             .StartAsync(progress =>
             Invoke("BepInEx v5.4.23.5", "https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.5/BepInEx_win_x64_5.4.23.5.zip", progress, path));
     
-    public static void InstallMelonLoader(string path) =>
+        File.Delete(Path.Combine(path, "version.dll"));
+    }
+
+    public static void InstallMelonLoader(string path)
+    {
         AnsiConsole.Progress()
             .StartAsync(progress =>
             Invoke("MelonLoader v0.7.2", "https://github.com/LavaGang/MelonLoader/releases/download/v0.7.2/MelonLoader.x64.zip", progress, path));
+    
+        File.Delete(Path.Combine(path, "winhttp.dll"));
+    }
 }

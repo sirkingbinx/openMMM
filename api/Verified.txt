@@ -1,3 +1,12 @@
+#
+# MonkeModManager Verification List
+# 
+# Verification works by checking if the URL starts with any of the links listed here.
+#
+# https://example.com verifies https://example.com/test ? TRUE
+# https://example.com/test verifies https://example.com ? FALSE
+#
+
 https://github.com/sirkingbinx
 https://github.com/BepInEx
 https://github.com/LavaGang

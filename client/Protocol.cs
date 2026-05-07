@@ -10,12 +10,12 @@ public class Protocol
         if (!Uri.TryCreate(uriString, UriKind.Absolute, out Uri uri))
             return;
 
+        Console.Title = $"MonkeModManager v{Program.Version}";
+
         var query = HttpUtility.ParseQueryString(uri.Query);
 
         if (uri.Host == "ping")
         {
-            Console.Title = $"MonkeModManager v{Program.Version}";
-
             Console.WriteLine($"Pong");
             Console.WriteLine($"\nPress any key to continue.");
 
@@ -23,17 +23,32 @@ public class Protocol
             Environment.Exit(0);
         }
 
-        string gamePath = Pathing.GetGamePath();
-
         if (uri.Host == "install")
         {
-            if (query.Count == 2)
+            string gamePath = Pathing.GetGamePath();
+
+            if (query["name"] is not null && query["url"] is not null)
             {
                 AnsiConsole.Progress()
                     .StartAsync(progress =>
                     Installer.Invoke(query["name"], query["url"], progress, gamePath));
                 
                 Console.WriteLine($"\n{query["name"]} was installed.");
+                Console.ReadKey();
+
+                Environment.Exit(0);
+            }
+
+            if (query["loader"] is not null)
+            {
+                string loader = query["loader"].ToLower();
+
+                if (loader == "bepinex")
+                    Installer.InstallBepInEx(gamePath);
+                else
+                    Installer.InstallMelonLoader(gamePath);
+                
+                Console.WriteLine($"\n{query["loader"]} was installed.");
                 Console.ReadKey();
 
                 Environment.Exit(0);
