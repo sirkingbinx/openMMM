@@ -1,0 +1,37 @@
+namespace MonkeModManager;
+
+public class Network
+{
+    private static HttpClient client;
+
+    private static void InitializeHttpClient()
+    {
+        if (client != null)
+            return;
+        
+        client = new HttpClient();
+        client.DefaultRequestHeaders.Add("User-Agent", $"MonkeModManager/{Program.Version}");
+    }
+
+    public static async Task<Stream> GetStream(string url)
+    {
+        InitializeHttpClient();
+
+        var response = await client.GetAsync(url);
+        response.EnsureSuccessStatusCode();
+
+        var byteStream = await response.Content.ReadAsStreamAsync();
+        return byteStream;
+    }
+
+    public static async Task<string> GetString(string url)
+    {
+        InitializeHttpClient();
+
+        var response = await client.GetAsync(url);
+        response.EnsureSuccessStatusCode();
+
+        var contentStream = await response.Content.ReadAsStringAsync();
+        return contentStream;
+    }
+}
