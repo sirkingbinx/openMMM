@@ -29,11 +29,9 @@ public class Protocol
 
             if (query["name"] is not null && query["url"] is not null)
             {
-                AnsiConsole.Progress()
-                    .StartAsync(progress =>
-                    Installer.Invoke(query["name"], query["url"], progress, gamePath));
+                Installer.Invoke(Uri.UnescapeDataString(query["name"]), Uri.UnescapeDataString(query["url"]), gamePath).GetAwaiter().GetResult();
                 
-                Console.WriteLine($"\n{query["name"]} was installed.");
+                Console.WriteLine($"Press any key to continue.");
                 Console.ReadKey();
 
                 Environment.Exit(0);
@@ -44,15 +42,25 @@ public class Protocol
                 string loader = query["loader"].ToLower();
 
                 if (loader == "bepinex")
-                    Installer.InstallBepInEx(gamePath);
+                    Installer.InstallBepInEx(gamePath).GetAwaiter().GetResult();
                 else
-                    Installer.InstallMelonLoader(gamePath);
+                    Installer.InstallMelonLoader(gamePath).GetAwaiter().GetResult();
                 
-                Console.WriteLine($"\n{query["loader"]} was installed.");
+                Console.WriteLine($"Press any key to continue.");
                 Console.ReadKey();
 
                 Environment.Exit(0);
             }
+        }
+
+        if (uri.Host == "select")
+        {
+            string newPath = Pathing.GetGamePath(true);
+            
+            Console.WriteLine($"Your new game path is \"{newPath}\".");
+            Console.WriteLine($"\nPress any key to continue.");
+            Console.ReadKey();
+            Environment.Exit(0);
         }
 
         Console.WriteLine($"Invalid URI {uri.Host}.");

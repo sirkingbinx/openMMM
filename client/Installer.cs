@@ -10,7 +10,7 @@ public class Installer
 
     private static AwesomeTxtFile VerifiedCache;
 
-    public static async Task Invoke(string displayName, string url, ProgressContext progress = null, string path = "")
+    public static async Task Invoke(string displayName, string url, string path = "")
     {
         if (path == "")
             path = Pathing.GetGamePath();
@@ -24,22 +24,20 @@ public class Installer
         string host = new Uri(url).Host;
         bool verified = VerifiedCache.Results.Any(verifiedUrl => url.StartsWith(verifiedUrl));
 
-        string verifiedText = verified ? "([green]Verified[/])" : "";
+        string verifiedText = verified ? "[green](Verified)[/]" : "";
 
         bool install = AnsiConsole.Prompt(new SelectionPrompt<string>()
             .Title($"Installing {displayName} {verifiedText}\n\nDo you want to install this?")
             .AddChoices("Yes", "No")) == "Yes";
 
-        const int steps = 2;
-        var task = progress?.AddTask($"Installing {displayName}");
+        if (!install)
+            return;
 
-        var updateStep = (int now) => {
-            task?.Increment(now * 100 / steps);
-        };
-
-        updateStep(1);
+        Console.Write($"\rDownloading: {displayName}");
 
         var fileData = await Network.GetStream(url);
+
+        Console.Write($"\rInstalling : {displayName}");
 
         if (Path.GetExtension(url) == ".zip")
         {
@@ -54,24 +52,18 @@ public class Installer
             fileStream.Close();
         }
 
-        updateStep(2);
+        Console.Write($"\rInstalled  : {displayName}\n");
     }
 
-    public static void InstallBepInEx(string path)
+    public static async Task InstallBepInEx(string path)
     {
-        AnsiConsole.Progress()
-            .StartAsync(progress =>
-            Invoke("BepInEx v5.4.23.5", "https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.5/BepInEx_win_x64_5.4.23.5.zip", progress, path));
-    
+        await Invoke("BepInEx v5.4.23.5", "https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.5/BepInEx_win_x64_5.4.23.5.zip", path);
         File.Delete(Path.Combine(path, "version.dll"));
     }
 
-    public static void InstallMelonLoader(string path)
+    public static async Task InstallMelonLoader(string path)
     {
-        AnsiConsole.Progress()
-            .StartAsync(progress =>
-            Invoke("MelonLoader v0.7.2", "https://github.com/LavaGang/MelonLoader/releases/download/v0.7.2/MelonLoader.x64.zip", progress, path));
-    
+        await Invoke("MelonLoader v0.7.2", "https://github.com/LavaGang/MelonLoader/releases/download/v0.7.2/MelonLoader.x64.zip", path);
         File.Delete(Path.Combine(path, "winhttp.dll"));
     }
 }

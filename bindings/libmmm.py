@@ -43,15 +43,15 @@ class ModFolder(Enum):
     USER_DATA_FOLDER = 2,
     APP_DATA_FOLDER = 3
 
-def install(name: str, url: str):
+def install_mod(name: str, url: str):
     """Install a mod with the given display name and URL."""
     open(f"mmm://install?name={quote(name)}&url={quote(url)}")
 
-def install(loader: ModLoader):
+def install_loader(loader: ModLoader):
     """Install the specified mod loader."""
     open(f"mmm://install?loader={ "BepInEx" if loader is 0 else "MelonLoader" }")
 
-def open(folder: ModFolder):
+def open_folder(folder: ModFolder):
     """Open a folder in the File Explorer."""
     folderStr = ""
 
@@ -67,6 +67,6 @@ def open(folder: ModFolder):
     
     open(f"mmm://install?mode={folderStr}")
 
-def open(path: str):
+def open_path(path: str):
     """Open a folder in the File Explorer. The path should be relative to Gorilla Tag's folder."""
     open(f"mmm://install?path={quote(path)}")

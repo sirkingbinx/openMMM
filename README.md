@@ -8,6 +8,10 @@ This is a full rewrite of MonkeModManager which achieves multiple things:
 ### Implementation
 If you know how to code, there is most likely bindings of the protocol for your language. See [/bindings](/bindings/).
 
+### Verification
+Since mod downloads are now community-sourced, mods can be verified to prove that they are not viruses.
+Being verified does not show that a mod is "legal" / relies on modded lobbys, it simply shows that a mod is not a virus.
+
 ### Download Button
 [![Install with MonkeModManager](https://img.shields.io/badge/install%20with-MonkeModManager-navy)](mmm://install?name=BingusNametags%2B%2B&url=https%3A%2F%2Fgithub.com%2Fsirkingbinx%2FBingusNametagsPlusPlus%2Freleases%2Flatest%2FBingusNametagsPlusPlus.dll)
 
