@@ -35,7 +35,7 @@ function modVerified(downloadUrl) {
 
 // Install a mod with the downloadURL with the display name as name.
 function installMod(name, downloadUrl) {
-    runUri(`mmm://install?name=${encodeURIComponent(name)}&url=${encodeURIComponent(downloadUrl)}`);
+    runUri(`mmm://install?mods=${encodeURIComponent(name)}~${encodeURIComponent(downloadUrl)}`);
 }
 
 // Install the specified mod loader.

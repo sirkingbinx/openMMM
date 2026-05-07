@@ -29,6 +29,7 @@
 // 
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace MonkeModManager;
 
@@ -63,7 +64,7 @@ public static class MonkeModManager
     /// <param name="mod">The mod to install.</param>
     public static void Install(MonkeMod mod)
     {
-        RunUri($"mmm://install{mod.ToInstallerQuery()}");
+        RunUri($"mmm://install?mods={mod.ToInstallerQuery()}");
     }
 
     /// <summary>
@@ -76,7 +77,7 @@ public static class MonkeModManager
         string urlName = Uri.EscapeDataString(name);
         string urlDownload = Uri.EscapeDataString(url);
 
-        RunUri($"mmm://install?name={urlName}&url={urlDownload}");
+        RunUri($"mmm://install?mods={urlName}~{urlDownload}");
     }
 
     /// <summary>
@@ -128,6 +129,11 @@ public class MonkeMod
     public string Url;
 
     /// <summary>
+    /// The dependencies that the mod needs to function.
+    /// </summary>
+    public List<MonkeMod> Dependencies = [];
+
+    /// <summary>
     /// True if the mod is verified on MonkeModManager.
     /// </summary>
     public string Verified
@@ -151,7 +157,12 @@ public class MonkeMod
         string name = Uri.EscapeDataString(Name);
         string url = Uri.EscapeDataString(Url);
 
-        return $"?name={name}&url={url}";
+        string dependencyString = "";
+
+        foreach (string dep in Dependencies.Select(d => d.ToInstallerQuery()))
+            dependencyString += "-" + dep;
+
+        return $"{name}~{url}{dependencyString}";
     }
 }
 

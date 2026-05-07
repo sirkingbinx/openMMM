@@ -27,9 +27,28 @@ public class Protocol
         {
             string gamePath = Pathing.GetGamePath();
 
-            if (query["name"] is not null && query["url"] is not null)
+            if (query["mods"] is not null)
             {
-                Installer.Invoke(Uri.UnescapeDataString(query["name"]), Uri.UnescapeDataString(query["url"]), gamePath).GetAwaiter().GetResult();
+                List<(string, string)> mods = new();
+                foreach (string dependencyString in query["mods"].Split("-"))
+                {
+                    string[] split = dependencyString.Split("~");
+
+                    if (split.Length == 2)
+                    {
+                        mods.Add((split[0], split[1]));
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Malformed mod list string.");
+                        Console.WriteLine($"Press any key to continue.");
+                        Console.ReadKey();
+
+                        Environment.Exit(1);
+                    }
+                }
+
+                Installer.Invoke(mods, gamePath).GetAwaiter().GetResult();
                 
                 Console.WriteLine($"Press any key to continue.");
                 Console.ReadKey();

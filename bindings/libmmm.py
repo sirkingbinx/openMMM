@@ -45,7 +45,7 @@ class ModFolder(Enum):
 
 def install_mod(name: str, url: str):
     """Install a mod with the given display name and URL."""
-    open(f"mmm://install?name={quote(name)}&url={quote(url)}")
+    open(f"mmm://install?mods={quote(name)}~{quote(url)}")
 
 def install_loader(loader: ModLoader):
     """Install the specified mod loader."""

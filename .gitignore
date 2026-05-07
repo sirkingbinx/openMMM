@@ -3,5 +3,7 @@
 bin/
 obj/
 
+build/
+
 *.exe
 *.dll
