@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 
 namespace MonkeModManager;
 
@@ -9,7 +9,6 @@ public class Pathing
         if ((!reselect) && (Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Software\SirKingBinx\MonkeModManager", "InstallPath", null) != null))
         {
             string path = Registry.GetValue(@"HKEY_CURRENT_USER\Software\SirKingBinx\MonkeModManager", "InstallPath");
-            Console.WriteLine(path);
             return path;
         }
         
@@ -66,6 +65,60 @@ public class Pathing
 
         Directory.CreateDirectory(p);
         return p;
+    }
+
+    public static void OpenPluginsFolder(string gamePath)
+    {
+        if (!IsLoaderInstalled(gamePath))
+            return;
+        
+        LaunchFolder(GetModLoaderPluginsPath(gamePath));
+    }
+
+    public static void OpenGameFolder(string gamePath)
+    {
+        LaunchFolder(gamePath);
+    }
+
+    public static void OpenGameRelativeFolder(string gamePath, string relativePath)
+    {
+        LaunchFolder(Path.Combine(gamePath, relativePath));
+    }
+
+    public static void OpenAppDataFolder()
+    {
+        var path = Path.Combine(Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)).FullName, "LocalLow", "Another Axiom", "Gorilla Tag");
+
+        if (!Directory.Exists(path))
+            return;
+
+        LaunchFolder(path);
+    }
+
+    public static void OpenUserDataFolder(string gamePath)
+    {
+        string path = @"C:\TEstewsuidzgvoyuhfgbyuvhsdf12412512542"; // invalidate if no mod loader is installed
+
+        if (File.Exists(Path.Combine(gamePath, "winhttp.dll")))
+            path = Path.Combine(gamePath, "BepInEx", "config");
+        if (File.Exists(Path.Combine(gamePath, "version.dll")))
+            path = Path.Combine(gamePath, "UserData");
+
+        if (!Directory.Exists(path))
+            return;
+
+        LaunchFolder(path);
+    }
+
+    private static void LaunchFolder(string folder)
+    {
+        ProcessStartInfo startInfo = new()
+        {
+            FileName = "explorer.exe",
+            Arguments = folder,
+            UseShellExecute = true
+        };
+        Process.Start(startInfo);
     }
 
     public static bool IsLoaderInstalled(string gamePath) =>

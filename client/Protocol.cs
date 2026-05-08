@@ -55,6 +55,47 @@ public class Protocol
             Application.Exit();
         }
 
+        if (uri.Host == "open")
+        {
+            string gamePath = Pathing.GetGamePath();
+
+            if (query["mode"] is not null)
+            {
+                switch (query["mode"].ToLower()) {
+                    case "game":
+                        Pathing.OpenGameFolder(gamePath);
+                        break;
+                    case "mods":
+                        Pathing.OpenPluginsFolder(gamePath);
+                        break;
+                    case "appdata":
+                        Pathing.OpenAppDataFolder();
+                        break;
+                    case "userdata":
+                        Pathing.OpenUserDataFolder(gamePath);
+                        break;
+                    default:
+                        MessageBox.Show($"Invalid URL parameters for /open. Please see documentation.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        break;
+                }
+
+                Application.Exit();
+                return;
+            }
+
+            if (query["path"] is not null)
+            {
+                Pathing.OpenGameRelativeFolder(gamePath, query["path"].ToLower());
+
+                Application.Exit();
+                return;
+            }
+
+            MessageBox.Show($"Invalid URL parameters for /open. Please see documentation.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Application.Exit();
+            return;
+        }
+
         if (uri.Host == "select")
         {
             Pathing.GetGamePath(true);
