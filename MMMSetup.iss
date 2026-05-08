@@ -58,7 +58,7 @@ Root: HKCU; Subkey: "Software\Classes\mmm"; ValueType: string; ValueName: "URL P
 Root: HKCU; Subkey: "Software\Classes\mmm\shell"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "Software\Classes\mmm\shell\open"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "Software\Classes\mmm\shell\open\command"; Flags: uninsdeletekey
-Root: HKCU; Subkey: "Software\Classes\mmm\shell\open\command"; ValueType: string; ValueName: ""; ValueData: "\""C:\Users\Ben\Documents\openmmm\client\bin\Debug\net10.0\MonkeModManager.exe\"" \""%1\"""; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Software\Classes\mmm\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1\"""; Flags: uninsdeletevalue
 ;End of registry data from file protocol.reg
 
 [Icons]
