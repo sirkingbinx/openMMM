@@ -41,13 +41,11 @@ WizardStyle=classic
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "client\bin\Release\net10.0\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "client\bin\Release\net10.0\MonkeModManager.deps.json"; DestDir: "{app}"; Flags: ignoreversion
-Source: "client\bin\Release\net10.0\MonkeModManager.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "client\bin\Release\net10.0\MonkeModManager.pdb"; DestDir: "{app}"; Flags: ignoreversion
-Source: "client\bin\Release\net10.0\MonkeModManager.runtimeconfig.json"; DestDir: "{app}"; Flags: ignoreversion
-Source: "client\bin\Release\net10.0\Spectre.Console.Ansi.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "client\bin\Release\net10.0\Spectre.Console.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "client\bin\Release\net10.0-windows\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "client\bin\Release\net10.0-windows\MonkeModManager.deps.json"; DestDir: "{app}"; Flags: ignoreversion
+Source: "client\bin\Release\net10.0-windows\MonkeModManager.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "client\bin\Release\net10.0-windows\MonkeModManager.pdb"; DestDir: "{app}"; Flags: ignoreversion
+Source: "client\bin\Release\net10.0-windows\MonkeModManager.runtimeconfig.json"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]

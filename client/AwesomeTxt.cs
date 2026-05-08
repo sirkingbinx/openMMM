@@ -1,8 +1,6 @@
 // Quick parser for a custom txt format
 // Comments prefixed with #, blank lines are filtered
 
-using System.Collections.Generic;
-
 namespace AwesomeTxt;
 
 public class AwesomeTxtFile

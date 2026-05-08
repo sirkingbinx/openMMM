@@ -1,5 +1,4 @@
 using System.Web;
-using Spectre.Console;
 
 namespace MonkeModManager;
 
@@ -10,18 +9,7 @@ public class Protocol
         if (!Uri.TryCreate(uriString, UriKind.Absolute, out Uri uri))
             return;
 
-        Console.Title = $"MonkeModManager v{Program.Version}";
-
         var query = HttpUtility.ParseQueryString(uri.Query);
-
-        if (uri.Host == "ping")
-        {
-            Console.WriteLine($"Pong");
-            Console.WriteLine($"\nPress any key to continue.");
-
-            Console.ReadKey();
-            Environment.Exit(0);
-        }
 
         if (uri.Host == "install")
         {
@@ -40,20 +28,14 @@ public class Protocol
                     }
                     else
                     {
-                        Console.WriteLine($"Malformed mod list string.");
-                        Console.WriteLine($"Press any key to continue.");
-                        Console.ReadKey();
-
-                        Environment.Exit(1);
+                        MessageBox.Show($"Invalid URI.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Application.Exit();
                     }
                 }
 
                 Installer.Invoke(mods, gamePath).GetAwaiter().GetResult();
-                
-                Console.WriteLine($"Press any key to continue.");
-                Console.ReadKey();
-
-                Environment.Exit(0);
+                Application.Exit();
+                return;
             }
 
             if (query["loader"] is not null)
@@ -64,29 +46,23 @@ public class Protocol
                     Installer.InstallBepInEx(gamePath).GetAwaiter().GetResult();
                 else
                     Installer.InstallMelonLoader(gamePath).GetAwaiter().GetResult();
-                
-                Console.WriteLine($"Press any key to continue.");
-                Console.ReadKey();
 
-                Environment.Exit(0);
+                Application.Exit();
+                return;
             }
+
+            MessageBox.Show($"Invalid URI parameters for /install. Please see documentation.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Application.Exit();
         }
 
         if (uri.Host == "select")
         {
-            string newPath = Pathing.GetGamePath(true);
-            
-            Console.WriteLine($"Your new game path is \"{newPath}\".");
-            Console.WriteLine($"\nPress any key to continue.");
-            Console.ReadKey();
-            Environment.Exit(0);
+            Pathing.GetGamePath(true);
+            Application.Exit();
+            return;
         }
-
-        Console.WriteLine($"Invalid URI {uri.Host}.");
-        Console.WriteLine($"Please contact the developers of the application that invoked MonkeModManager with this error.");
         
-        Console.WriteLine($"\nPress any key to continue.");
-        Console.ReadKey();
-        Environment.Exit(1);
+        MessageBox.Show($"Invalid URI.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        Application.Exit();
     }
 }

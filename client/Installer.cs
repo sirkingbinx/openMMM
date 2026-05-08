@@ -1,6 +1,5 @@
 using System.IO.Compression;
 using AwesomeTxt;
-using Spectre.Console;
 
 namespace MonkeModManager;
 
@@ -10,7 +9,7 @@ public class Installer
 
     private static AwesomeTxtFile VerifiedCache;
 
-    public static async Task Invoke(List<(string, string)> mods, string path = "")
+    public static async Task Invoke(List<(string, string)> mods, string path)
     {
         if (path == "")
             path = Pathing.GetGamePath();
@@ -32,41 +31,67 @@ public class Installer
             string depUrl = dependency.Item2;
 
             bool depVerified = VerifiedCache.Results.Any(verifiedUrl => depUrl.StartsWith(verifiedUrl));
-            string depVerifiedText = depVerified ? " [green](Verified)[/]" : "";
+            string depVerifiedText = depVerified ? " (Verified)" : "";
 
             dependencyText += $"{depName}{depVerifiedText}{(dependency == mods.Last() ? "" : ",")} ";
         }
 
-        bool install;
+        if (dependencyText != "")
+            dependencyText = $"Dependencies: {dependencyText}\n\n";
 
         bool verified = VerifiedCache.Results.Any(verifiedUrl => primaryUrl.StartsWith(verifiedUrl));
-        string verifiedText = verified ? "[green](Verified)[/]" : "";
-        
-        if (dependencyText == "")
-        {
-            install = AnsiConsole.Prompt(new SelectionPrompt<string>()
-                .Title($"Installing {primaryName} {verifiedText}\n\nDo you want to install this?")
-                .AddChoices("Yes", "No")) == "Yes";
-        }
-        else
-        {
-            install = AnsiConsole.Prompt(new SelectionPrompt<string>()
-                .Title($"Installing {primaryName} {verifiedText}\nDependencies: {dependencyText}\n\nDo you want to install this?")
-                .AddChoices("Yes", "No")) == "Yes";
-        }
+        string verifiedText = verified ? "This mod is verified.\n" : "";
 
-        if (!install)
+        if (!Pathing.IsLoaderInstalled(path) && !mods.Select(m => m.Item1.ToLower()).Any(m => m.Contains("bepinex") || m.Contains("melonloader")))
+            mods.Add(($"BepInEx v{Program.BepInExVersion}", Program.BepInExURL));
+
+        var installConfirmation = new TaskDialogPage()
+        {
+            Caption = "MonkeModManager",
+            Heading = $"Install {primaryName}?",
+            Text = $"{verifiedText}{dependencyText}Do you want to install this?",
+            Icon = verified ? TaskDialogIcon.ShieldSuccessGreenBar : TaskDialogIcon.ShieldWarningYellowBar,
+            Buttons = { TaskDialogButton.Cancel, TaskDialogButton.Yes }
+        };
+
+        if (TaskDialog.ShowDialog(installConfirmation) != TaskDialogButton.Yes)
             return;
 
-        foreach (var mod in mods.AsEnumerable().Reverse())
-            await InstallMod(mod.Item1, mod.Item2, path);
+        var progressBar = new TaskDialogProgressBar()
+        {
+            State = TaskDialogProgressBarState.Normal,
+            Minimum = 0,
+            Maximum = mods.Count
+        };
+
+        var page = new TaskDialogPage()
+        {
+            Caption = "MonkeModManager",
+            Heading = $"Loading..",
+            Text = "Your mods are being installed.",
+            ProgressBar = progressBar,
+            Buttons = { TaskDialogButton.OK }
+        };
+
+        page.Created += (s, e) =>
+        {
+            foreach (var mod in mods.AsEnumerable().Reverse())
+            {
+                page.Heading = $"Installing {mod.Item1}";
+                InstallMod(mod.Item2, path).GetAwaiter().GetResult();
+                progressBar.Value++;
+            }
+
+            page.Heading = "Installed";
+            page.Text = $"The following mods have been installed:\n{string.Join("\n", mods.Select(s => "- " + s.Item1).ToArray())}";
+        };
+
+        TaskDialog.ShowDialog(page);
     }
 
-    public static async Task InstallMod(string name, string url, string path)
+    public static async Task InstallMod(string url, string path)
     {
-        Console.Write($"\rDownloading: {name}");
         var fileData = await Network.GetStream(url);
-        Console.Write($"\rInstalling : {name}");
 
         if (Path.GetExtension(url) == ".zip")
         {
@@ -80,19 +105,17 @@ public class Installer
             fileStream.Flush();
             fileStream.Close();
         }
-
-        Console.Write($"\rInstalled  : {name}\n");
     }
 
     public static async Task InstallBepInEx(string path)
     {
-        await Invoke([("BepInEx v5.4.23.5", "https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.5/BepInEx_win_x64_5.4.23.5.zip")], path);
+        await Invoke([("BepInEx v" + Program.BepInExVersion, Program.BepInExURL)], path);
         File.Delete(Path.Combine(path, "version.dll"));
     }
 
     public static async Task InstallMelonLoader(string path)
     {
-        await Invoke([("MelonLoader v0.7.2", "https://github.com/LavaGang/MelonLoader/releases/download/v0.7.2/MelonLoader.x64.zip")], path);
+        await Invoke([("MelonLoader v" + Program.MelonLoaderVersion, Program.MelonLoaderURL)], path);
         File.Delete(Path.Combine(path, "winhttp.dll"));
     }
 }

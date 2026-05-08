@@ -1,4 +1,4 @@
-using Spectre.Console;
+using System.ComponentModel.DataAnnotations;
 
 namespace MonkeModManager;
 
@@ -6,14 +6,12 @@ public class Pathing
 {
     public static string GetGamePath(bool reselect = false)
     {
-        if (!OperatingSystem.IsWindows())
+        if ((!reselect) && (Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Software\SirKingBinx\MonkeModManager", "InstallPath", null) != null))
         {
-            Environment.Exit(0);
-            return "";
+            string path = Registry.GetValue(@"HKEY_CURRENT_USER\Software\SirKingBinx\MonkeModManager", "InstallPath");
+            Console.WriteLine(path);
+            return path;
         }
-
-        if (!reselect && (string)Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Software\SirKingBinx\MonkeModManager", "InstallPath", "") != "")
-            return (string)Microsoft.Win32.Registry.GetValue(@"HKEY_CURRENT_USER\Software\SirKingBinx\MonkeModManager", "InstallPath", "");
         
         string steamInstallPath = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 1533390", "InstallLocation");
 
@@ -21,18 +19,22 @@ public class Pathing
         string oculusLibraryPath = Registry.GetValue(@$"HKEY_CURRENT_USER\Software\Oculus VR, LLC\Oculus\Libraries\{oculusLibraryId}", "OriginalPath");
         string oculusInstallPath = Path.Combine(oculusLibraryPath, "Software", "another-axiom-gorilla-tag");
 
-        string gamePath = "";
+        string gamePath;
 
         if (Directory.Exists(steamInstallPath) && Directory.Exists(oculusInstallPath))
         {
-            string option = AnsiConsole.Prompt(new SelectionPrompt<string>()
-                .Title("Select the game that MonkeModManager should use by default. You can always change your choice by visiting mmm://select in your browser.")
-                .AddChoices("Steam", "Oculus"));
+            var steamBtn = new TaskDialogButton("Steam");
+            var oculusBtn = new TaskDialogButton("Oculus");
+            var selectGame = new TaskDialogPage()
+            {
+                Caption = "MonkeModManager",
+                Heading = "Select Gorilla Tag version",
+                Text = "Multiple installations of Gorilla Tag were found on your computer. Please select the one that MonkeModManager should install mods to. You can change this at any time by opening mmm://select in a browser.",
+                Buttons = { steamBtn, oculusBtn }
+            };
 
-            if (option == "Steam")
-                gamePath = steamInstallPath;
-            else
-                gamePath = oculusInstallPath;
+            bool useSteam = TaskDialog.ShowDialog(selectGame) == steamBtn;
+            gamePath = useSteam ? steamInstallPath : oculusInstallPath;
         }
         else if (Directory.Exists(steamInstallPath))
         {
@@ -44,12 +46,12 @@ public class Pathing
         }
         else
         {
-            Console.WriteLine("Gorilla Tag is not installed on your machine. Please install Gorilla Tag via Steam or Oculus.");
-            Environment.Exit(1);
+            MessageBox.Show("No installation of Gorilla Tag was detected. Please install the game via Steam or Oculus.", "MonkeModManager", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Application.Exit();
+            return "";
         }
 
         Microsoft.Win32.Registry.SetValue(@"HKEY_CURRENT_USER\Software\SirKingBinx\MonkeModManager", "InstallPath", gamePath);
-
         return gamePath;
     }
 
@@ -65,4 +67,7 @@ public class Pathing
         Directory.CreateDirectory(p);
         return p;
     }
+
+    public static bool IsLoaderInstalled(string gamePath) =>
+        File.Exists(Path.Combine(gamePath, "winhttp.dll")) || File.Exists(Path.Combine(gamePath, "version.dll"));
 }

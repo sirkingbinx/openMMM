@@ -1,15 +1,10 @@
-using Spectre.Console;
-
 namespace MonkeModManager;
 
 public class Registry
 {
-    public static string GetValue(string name, string key, string def = "")
+    public static string GetValue(string name, string key)
     {
-        if (!OperatingSystem.IsWindows())
-            return "";
-
-        return (string)Microsoft.Win32.Registry.GetValue(name, key, def);
+        return (string)Microsoft.Win32.Registry.GetValue(name, key, null);
     }
 
     public static void RegisterProtocol(string appPath)
