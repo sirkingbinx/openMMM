@@ -28,47 +28,104 @@
 // For more information, please refer to <http://unlicense.org>
 // 
 
-// Returns true if the mod in the downloadUrl is verified safe.
-function modVerified(downloadUrl) {
-    return false; // not implemented
+/**
+ * @description Represents a mod to be managed by MonkeModManager.
+ */
+class MonkeMod {
+    constructor(name, downloadURL) {
+        /**
+         * @type {string}
+         * @description The display name used on MonkeModManager.
+         */
+        this.name = name;
+
+        /**
+         * @type {string}
+         * @description The direct download URL used to fetch the mod's file (either a DLL or a ZIP). Zip files will be extracted to Gorilla Tag's game folder, while DLLs are just added to the mod loader's plugins folder.
+         */
+        this.downloadURL = downloadURL;
+
+        /**
+         * @type {Array} 
+         * @description A list of dependencies (MonkeMod). These will automatically be included in install requests made through libmmm.
+         */
+        this.dependencies = [];
+    }
+
+    /**
+     * @description Converts the monkemod into parameters used in mmm://install queries.
+     */ 
+    toUrlParameter() {
+        let dependencyString = "";
+        this.dependencies.forEach(element => {
+            dependencyString += "-" + element.toUrlParameter();
+        });
+
+        return `${encodeURIComponent(this.name).replace(/\./g, '%2E')}~${encodeURIComponent(this.downloadURL).replace(/\./g, '%2E')}${dependencyString}`;
+    }
+
+    /** 
+     * @description Returns true if the mod is verified on the MonkeModManager verification registry.
+     */
+    static async isVerified() {
+        // Holy shit, this is ugly! Thanks ECMAScript!
+        let verificationListResult = await fetch("https://raw.githubusercontent.com/sirkingbinx/openMMM/refs/heads/master/api/Verified.txt");
+        let lines = (await verificationListResult.text()).split(/\r?\n/).filter(line => line.trim() !== "");
+
+        return lines.some(verifiedUrl => this.downloadURL.startsWith(verifiedUrl));
+    }
 }
 
-// Install a mod with the downloadURL with the display name as name.
-function installMod(name, downloadUrl) {
-    runUri(`mmm://install?mods=${encodeURIComponent(name)}~${encodeURIComponent(downloadUrl)}`);
+/**
+ * @param {MonkeMod} mod - Mod to install. Automatically includes it's dependencies.\
+ * @description Install a mod.
+ */
+function installMod(mod) {
+    runUri(`mmm://install?mods=${mod.toUrlParameter()}`);
 }
 
-// Install the specified mod loader.
+/**
+ * @param {MonkeMod} mod - Mod to install. Automatically includes it's dependencies.
+ * @description Install the specified mod loader.
+ */
 function installLoader(loader) {
     runUri(`mmm://install?loader=${loaderToString(loader)}`);
 }
 
-// Opens the game folder.
-function openGameFolder(folderPath) {
+/** @description Opens the game folder. */
+function openGameFolder() {
     runUri(`mmm://open?mode=game`);
 }
 
-// Opens the mods folder.
-function openModsFolder(folderPath) {
+/** @description Opens the mods folder. */
+function openModsFolder() {
     runUri(`mmm://open?mode=mods`);
 }
 
-// Opens the config/userdata folder.
-function openUserDataFolder(folderPath) {
+/** @description Opens the config/userdata folder. */
+function openUserDataFolder() {
     runUri(`mmm://open?mode=userdata`);
 }
 
-// Opens Gorilla Tag's AppData folder.
-function openAppDataFolder(folderPath) {
+/** @description Opens Gorilla Tag's AppData folder. */
+function openAppDataFolder() {
     runUri(`mmm://open?mode=appdata`);
 }
 
-// Opens a folder (path relative to Gorilla Tag folder)
+/** @description Opens a folder (path relative to Gorilla Tag folder) */
 function openFolder(folderPath) {
     runUri(`mmm://open?path=${encodeURIComponent(folderPath)}`);
 }
 
-// Run a URI without navigating away from the current page
+/** @description Represents a mod loader. */
+const Loader = Object.freeze({
+    /** @description BepInEx */
+    BEPINEX: 'BepInEx',
+
+    /** @description MelonLoader */
+    MELONLOADER: 'MelonLoader',
+});
+
 function runUri(uri) {
     const link = document.createElement("a");
     link.href = uri;
@@ -78,11 +135,6 @@ function runUri(uri) {
     link.click();
     link.remove();
 }
-
-const Loader = Object.freeze({
-    BEPINEX: 'BepInEx',
-    MELONLOADER: 'MelonLoader',
-});
 
 function loaderToString(loader) {
     return loader === Loader.BEPINEX ? "BepInEx" : "MelonLoader";
