@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -34,7 +37,24 @@ func main() {
 	})
 
 	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("/login from %s", r.RemoteAddr)
 		dc.RedirectHandler(w, r, "")
+	})
+
+	http.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("/logout from %s", r.RemoteAddr)
+
+		token := r.URL.Query().Get("token")
+
+		data := map[string]string{"client_id": string(discord_oauth2_clientid), "client_secret": string(discord_oauth2_clientkey), "token": token}
+		jsonData, _ := json.Marshal(data)
+
+		resp, err := http.Post("https://discord.com/api/oauth2/token/revoke", "application/x-www-form-urlencoded", bytes.NewBuffer(jsonData))
+		if err != nil {
+			fmt.Printf("uh oh! client token revoke error %v", err)
+		}
+
+		defer resp.Body.Close()
 	})
 
 	http.HandleFunc("/redirect", func(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +64,7 @@ func main() {
 			userData, _           = disgoauth.GetUserData(accessToken)
 		)
 
-		fmt.Println(userData)
+		http.Redirect(w, r, fmt.Sprintf("https://mmm.sirkingbinx.dev/login?token=%s&user=%s", url.QueryEscape(accessToken), url.QueryEscape(userData["username"].(string))), http.StatusAccepted)
 	})
 
 	http.ListenAndServe(":8000", nil)

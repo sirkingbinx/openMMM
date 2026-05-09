@@ -42,3 +42,8 @@ function insertMod(mod) {
     modList.innerHTML += toHtmlEntry(mod);
 }
 
+if (localStorage.getItem("discord_auth") != null)
+{
+    document.getElementById("login-btn").innerHTML = `${localStorage.getItem("cached_username")}`;
+    document.getElementById("login-btn").href = "https://mmm.sirkingbinx.dev/logout";
+}
