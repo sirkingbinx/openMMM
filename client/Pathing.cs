@@ -56,14 +56,9 @@ public class Pathing
 
     public static string GetModLoaderPluginsPath(string gamePath)
     {
-        string p = "";
-
-        if (File.Exists(Path.Combine(gamePath, "winhttp.dll")))
-            p = Path.Combine(gamePath, "BepInEx", "plugins");
-        if (File.Exists(Path.Combine(gamePath, "version.dll")))
-            p = Path.Combine(gamePath, "Mod");
-
+        string p = Path.Combine(gamePath, "BepInEx", "plugins");
         Directory.CreateDirectory(p);
+
         return p;
     }
 
@@ -99,10 +94,7 @@ public class Pathing
     {
         string path = @"C:\TEstewsuidzgvoyuhfgbyuvhsdf12412512542"; // invalidate if no mod loader is installed
 
-        if (File.Exists(Path.Combine(gamePath, "winhttp.dll")))
-            path = Path.Combine(gamePath, "BepInEx", "config");
-        if (File.Exists(Path.Combine(gamePath, "version.dll")))
-            path = Path.Combine(gamePath, "UserData");
+        path = Path.Combine(gamePath, "BepInEx", "config");
 
         if (!Directory.Exists(path))
             return;
@@ -122,5 +114,5 @@ public class Pathing
     }
 
     public static bool IsLoaderInstalled(string gamePath) =>
-        File.Exists(Path.Combine(gamePath, "winhttp.dll")) || File.Exists(Path.Combine(gamePath, "version.dll"));
+        File.Exists(Path.Combine(gamePath, "winhttp.dll"));
 }

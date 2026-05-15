@@ -43,7 +43,7 @@ public class Installer
         string verifiedText = verified ? "This mod is verified.\n" : "";
 
         if (!Pathing.IsLoaderInstalled(path) && !mods.Select(m => m.Item1.ToLower()).Any(m => m.Contains("bepinex") || m.Contains("melonloader")))
-            mods.Add(($"BepInEx v{Program.BepInExVersion}", Program.BepInExURL));
+            mods.Add(($"BepInEx", "https://files.sirkingbinx.dev/mmm/BepInEx.zip"));
 
         var installConfirmation = new TaskDialogPage()
         {
@@ -109,13 +109,7 @@ public class Installer
 
     public static async Task InstallBepInEx(string path)
     {
-        await Invoke([("BepInEx v" + Program.BepInExVersion, Program.BepInExURL)], path);
+        await Invoke([("BepInEx", "https://files.sirkingbinx.dev/mmm/BepInEx.zip")], path);
         File.Delete(Path.Combine(path, "version.dll"));
-    }
-
-    public static async Task InstallMelonLoader(string path)
-    {
-        await Invoke([("MelonLoader v" + Program.MelonLoaderVersion, Program.MelonLoaderURL)], path);
-        File.Delete(Path.Combine(path, "winhttp.dll"));
     }
 }

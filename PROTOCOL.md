@@ -28,7 +28,7 @@ Add your mods to the `install` request like this:
 mmm://install?mods=Main%20Mod~https%3A%2F%2Fexample.com%2Fmod3.dll-Dependency~https%3A%2F%2Fexample.com%2Fmod2.dll
 ```
 
-Optionally, install a mod loader. BepInEx will be installed if no loader is present when a mod is installed.
+Optionally, install BepInEx. BepInEx will be installed if it is not yet when a mod is installed.
 ```
-mmm://install?loader=[bepinex / melonloader]
+mmm://install_loader
 ```

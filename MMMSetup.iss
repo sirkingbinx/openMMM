@@ -3,7 +3,7 @@
 #define MyAppName "MonkeModManager"
 #define MyAppVersion "2.0.0"
 #define MyAppPublisher "SirKingBinx"
-#define MyAppURL "https://github.com/sirkingbinx/openMMM"
+#define MyAppURL "https://github.com/sirkingbinx/mmm"
 #define MyAppExeName "MonkeModManager.exe"
 
 [Setup]

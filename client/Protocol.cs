@@ -38,21 +38,18 @@ public class Protocol
                 return;
             }
 
-            if (query["loader"] is not null)
-            {
-                string loader = query["loader"].ToLower();
-
-                if (loader == "bepinex")
-                    Installer.InstallBepInEx(gamePath).GetAwaiter().GetResult();
-                else
-                    Installer.InstallMelonLoader(gamePath).GetAwaiter().GetResult();
-
-                Application.Exit();
-                return;
-            }
-
             MessageBox.Show($"Invalid URI parameters for /install. Please see documentation.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             Application.Exit();
+        }
+
+        if (uri.Host == "install_loader")
+        {
+            string gamePath = Pathing.GetGamePath();
+
+            Installer.InstallBepInEx(gamePath).GetAwaiter().GetResult();
+
+            Application.Exit();
+            return;
         }
 
         if (uri.Host == "open")
