@@ -12,20 +12,22 @@ Utilla~https://github.com/sirkingbinx/Utilla/releases/latest/download/Utilla.dll
 ```
 Using whatever programming language you choose, make the text URL safe (excluding the ~):
 ```
-Utilla~https%3A%2F%2Fgithub.com%2Fsirkingbinx%2FUtilla%2Freleases%2Flatest%2Fdownload%2FUtilla.dll
+Utilla~https%3A%2F%2Fgithub%2Ecom%2Fsirkingbinx%2FUtilla%2Freleases%2Flatest%2Fdownload%2FUtilla%2Edll
 ```
+Note that you also need to encode periods as `%2E`.
+
 To install dependencies, list them in reverse order of installation, seperated by dashes (-).
 ```
-Main%20Mod~https%3A%2F%2Fexample.com%2Fmod3.dll-Dependency~https%3A%2F%2Fexample.com%2Fmod2.dll-Dependency%20of%20Dependency~https%3A%2F%2Fexample.com%2Fmod3.dll
+Main%20Mod~https%3A%2F%2Fexample%2Ecom%2Fmod3%2Edll-Dependency~https%3A%2F%2Fexample.com%2Fmod2%2Edll-Dependency%20of%20Dependency~https%3A%2F%2Fexample.com%2Fmod3%2Edll
 ```
 If your download is a zip file, it will be extracted to the directly holding Gorilla Tag.exe (the GT root directory)
 ```txt
-My%20Zipped%20Mod~https%3A%2F%2Fexample.com%2Fmod.zip
+My%20Zipped%20Mod~https%3A%2F%2Fexample%2Ecom%2Fmod%2Ezip
 ```
 
 Add your mods to the `install` request like this:
 ```
-mmm://install?mods=Main%20Mod~https%3A%2F%2Fexample.com%2Fmod3.dll-Dependency~https%3A%2F%2Fexample.com%2Fmod2.dll
+mmm://install?mods=Main%20Mod~https%3A%2F%2Fexample%2Ecom%2Fmod3%2Edll-Dependency~https%3A%2F%2Fexample%2Ecom%2Fmod2%2Edll
 ```
 
 Optionally, install BepInEx. BepInEx will be installed if it is not yet when a mod is installed.
