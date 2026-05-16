@@ -4,7 +4,7 @@ To allow for basically anything to integrate with MonkeModManager, we use the `m
 This doc will go over all of the features that the MMM protocol supports.
 
 ## `mmm://install`
-`install` allows you to install mod loaders and mods.
+`install` allows you to install mods.
 
 To pass a mod, you add it like this:
 ```txt
@@ -30,7 +30,14 @@ Add your mods to the `install` request like this:
 mmm://install?mods=Main%20Mod~https%3A%2F%2Fexample%2Ecom%2Fmod3%2Edll-Dependency~https%3A%2F%2Fexample%2Ecom%2Fmod2%2Edll
 ```
 
-Optionally, install BepInEx. BepInEx will be installed if it is not yet when a mod is installed.
+## `mmm://install_loader`
+This will quickly install BepInEx. This is already done when calling `install` without BepInEx installed, but you can also invoke it yourself.
 ```
 mmm://install_loader
+```
+
+## `mmm://select`
+Forces the selection of a game path and saves it to the user's preferences.
+```
+mmm://select
 ```
